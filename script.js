@@ -10,9 +10,9 @@ function runCode() {
   })
   .then(response => response.json())
   .then(data => {
-    document.getElementById("output").innerText = data.output || "[No output returned]";
+    document.getElementById("output").innerText = data.output;
   })
   .catch(error => {
-    document.getElementById("output").innerText = "[ERROR] " + error;
+    document.getElementById("output").innerText = "[ERROR] " + error.message;
   });
 }
