@@ -1,7 +1,7 @@
 
 function runCode() {
   const code = document.getElementById("codeInput").value;
-  fetch("/run", {
+  fetch("https://jargon-engine.onrender.com/run", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
