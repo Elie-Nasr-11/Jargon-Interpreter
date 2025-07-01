@@ -171,7 +171,7 @@
 
         if (response.ok) {
           const data = await response.json();
-          output.textContent = data.result;
+          output.textContent = data.output;
           resizeParent();
         } else {
           output.textContent = `Error: ${response.status} ${response.statusText}`;
