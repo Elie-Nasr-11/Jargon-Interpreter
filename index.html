@@ -125,6 +125,23 @@
     }
   </style>
 </head>
+<button onclick="pingTest()">Ping Backend</button>
+<script>
+  function pingTest() {
+    fetch("https://jargon-engine.onrender.com/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: "PRINT 123" })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Backend says: " + data.output);
+    })
+    .catch(error => {
+      alert("Error: " + error.message);
+    });
+  }
+</script>
 <body>
   <div class="container">
     <textarea id="inputCode" placeholder="Write code here..."></textarea>
