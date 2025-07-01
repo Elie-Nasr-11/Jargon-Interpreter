@@ -1,6 +1,5 @@
 function runCode() {
   const code = document.getElementById("codeInput").value;
-
   fetch("https://jargon-engine.onrender.com/run", {
     method: "POST",
     headers: {
