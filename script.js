@@ -1,34 +1,66 @@
-const textarea = document.getElementById("inputCode");
-const output = document.getElementById("output");
+function sendCode() {
+  const code = document.getElementById("inputCode").value;
+  const output = document.getElementById("output");
+  const askField = document.getElementById("askField");
+  const askInput = document.getElementById("askInput");
+  const askButton = document.getElementById("askButton");
 
-async function sendCode() {
-  const code = textarea.value;
-  const response = await fetch("https://jargon-engine.onrender.com/run", {
+  output.textContent = "";
+  askField.style.display = "none";
+
+  fetch("https://jargon-engine.onrender.com/run", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code })
-  });
-
-  const data = await response.json();
-
-  if (data.ask) {
-    const answer = prompt(data.ask.question);
-    if (answer !== null) {
-      const newLine = `SET ${data.ask.var} ("${answer}")`;
-      const updatedCode = insertAfterAsk(code, newLine);
-      textarea.value = updatedCode;
-      sendCode();
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ input: code })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ask) {
+      askField.style.display = "flex";
+      askInput.placeholder = data.ask;
+    } else {
+      output.textContent = data.result || "[No output returned]";
     }
-  } else {
-    output.textContent = data.output || "[No output returned]";
-  }
+  })
+  .catch(err => {
+    output.textContent = `[ERROR] ${err.message}`;
+  });
 }
 
-function insertAfterAsk(code, insertion) {
-  const lines = code.split("\n");
-  let idx = lines.findIndex(line => line.trim().startsWith("ASK"));
-  if (idx >= 0) {
-    lines.splice(idx + 1, 0, insertion);
-  }
-  return lines.join("\n");
+function sendAnswer() {
+  const answer = document.getElementById("askInput").value;
+  const output = document.getElementById("output");
+
+  fetch("https://jargon-engine.onrender.com/answer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ answer: answer })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ask) {
+      document.getElementById("askInput").placeholder = data.ask;
+      document.getElementById("askInput").value = "";
+    } else {
+      document.getElementById("askField").style.display = "none";
+      output.textContent = data.result || "[No output returned]";
+    }
+  })
+  .catch(err => {
+    output.textContent = `[ERROR] ${err.message}`;
+  });
+}
+
+function copyInput() {
+  navigator.clipboard.writeText(document.getElementById("inputCode").value)
+    .then(() => alert("Input copied!"));
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById("output").textContent)
+    .then(() => alert("Output copied!"));
 }
