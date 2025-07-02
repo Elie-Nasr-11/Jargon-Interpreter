@@ -123,156 +123,44 @@
       scrollbar-width: thin;
     }
 
-    #askModal {
-      position: fixed;
-      z-index: 999;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.85);
+    #askField {
       display: none;
-      justify-content: center;
+      margin-top: 20px;
+      gap: 12px;
       align-items: center;
-      font-family: 'Poppins', sans-serif;
     }
 
-    #askModal input {
+    #askInput {
+      flex: 1;
+      font-size: 13px;
       padding: 10px;
-      font-size: 14px;
-      width: 300px;
-    }
-
-    #askModal button {
-      margin-left: 10px;
+      font-family: 'Source Code Pro', monospace;
+      border: 2px solid #c42d88;
+      width: 60%;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <textarea id="inputCode" placeholder="Write code here..."></textarea>
+
     <div class="button-row">
       <button onclick="sendCode()">Run Code</button>
     </div>
 
     <div id="output" tabindex="0"></div>
-    
-    <div id="askField" style="display: none; margin-top: 10px; align-items: center; gap: 12px;">
-      <input id="askInput" type="text" style="flex: 1; font-size: 13px; padding: 10px; font-family: 'Source Code Pro', monospace; border: 2px solid #c42d88; width: 60%;" />
+
+    <div id="askField">
+      <input id="askInput" type="text" placeholder="" />
       <button onclick="sendAnswer()">Submit</button>
     </div>
-    
+
     <div class="button-row">
       <button onclick="copyInput()">Copy Input</button>
       <button onclick="copyOutput()">Copy Output</button>
     </div>
   </div>
 
-  <div id="askModal">
-    <div>
-      <label id="askPrompt"></label>
-      <input type="text" id="askResponse" />
-      <button onclick="submitAsk()">Submit</button>
-    </div>
-  </div>
-
-  <script>
-    const textarea = document.getElementById("inputCode");
-    const output = document.getElementById("output");
-    const askModal = document.getElementById("askModal");
-    const askPrompt = document.getElementById("askPrompt");
-    const askResponse = document.getElementById("askResponse");
-
-    let askCallback = null;
-
-    function resizeParent() {
-      setTimeout(() => {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({ type: 'resize', height }, '*');
-      }, 50);
-    }
-
-    textarea.addEventListener("input", function () {
-      this.style.height = "auto";
-      const max = parseInt(window.getComputedStyle(this).maxHeight);
-      this.style.height = Math.min(this.scrollHeight, max) + "px";
-      resizeParent();
-    });
-
-    function sendCode() {
-      const input = textarea.value;
-      output.textContent = "";
-      fetch("https://jargon-engine.onrender.com/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.ask) {
-          askPrompt.textContent = data.ask;
-          askResponse.value = "";
-          askModal.style.display = "flex";
-          askCallback = (answer) => {
-            fetch("https://jargon-engine.onrender.com/answer", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ answer })
-            })
-            .then(r => r.json())
-            .then(result => {
-              if (result.ask) {
-                askPrompt.textContent = result.ask;
-                askResponse.value = "";
-                askModal.style.display = "flex";
-              } else {
-                output.textContent = result.output;
-                resizeParent();
-              }
-            });
-          };
-        } else {
-          output.textContent = data.output;
-          resizeParent();
-        }
-      })
-      .catch(error => {
-        output.textContent = "[ERROR] " + error.message;
-        resizeParent();
-      });
-    }
-
-    function submitAsk() {
-      const response = askResponse.value.trim();
-      askModal.style.display = "none";
-      if (askCallback) {
-        askCallback(response);
-      }
-    }
-
-    function flashElement(element) {
-      element.classList.add("flash");
-      setTimeout(() => {
-        element.classList.remove("flash");
-        resizeParent();
-      }, 1000);
-    }
-
-    function copyInput() {
-      navigator.clipboard.writeText(textarea.value).then(() => {
-        alert("Input copied to clipboard!");
-        flashElement(textarea);
-      });
-    }
-
-    function copyOutput() {
-      navigator.clipboard.writeText(output.textContent).then(() => {
-        alert("Output copied to clipboard!");
-        flashElement(output);
-        output.style.border = "2px solid var(--green-hover)";
-      });
-    }
-
-    window.addEventListener('load', resizeParent);
-    window.addEventListener('resize', resizeParent);
-    new MutationObserver(resizeParent).observe(document.body, { childList: true, subtree: true, characterData: true });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
