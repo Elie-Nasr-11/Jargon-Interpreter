@@ -2,7 +2,6 @@ const textarea = document.getElementById("inputCode");
 const output = document.getElementById("output");
 const askField = document.getElementById("askField");
 const askInput = document.getElementById("askInput");
-const askButton = document.getElementById("askButton");
 
 function resizeParent() {
   setTimeout(() => {
@@ -27,6 +26,7 @@ async function sendCode() {
       askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
+      askInput.focus();
     } else {
       output.textContent = data.result || "[No output returned]";
     }
@@ -48,6 +48,7 @@ async function sendAnswer() {
     if (data.ask) {
       askInput.placeholder = data.ask;
       askInput.value = "";
+      askInput.focus();
     } else {
       askField.style.display = "none";
       output.textContent = data.result || "[No output returned]";
