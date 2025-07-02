@@ -1,63 +1,75 @@
-function sendCode() {
-  const code = document.getElementById("inputCode").value;
-  const output = document.getElementById("output");
-  const askField = document.getElementById("askField");
-  const askInput = document.getElementById("askInput");
+const textarea = document.getElementById("inputCode");
+const output = document.getElementById("output");
+const askField = document.getElementById("askField");
+const askInput = document.getElementById("askInput");
+const askButton = document.getElementById("askButton");
 
+function resizeParent() {
+  setTimeout(() => {
+    const h = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: "resize", height: h }, "*");
+  }, 50);
+}
+
+async function sendCode() {
+  const code = textarea.value;
   output.textContent = "";
   askField.style.display = "none";
 
-  fetch("https://jargon-engine.onrender.com/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ input: code })
-  })
-  .then(res => res.json())
-  .then(data => {
+  try {
+    const res = await fetch("https://jargon-engine.onrender.com/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input: code }),
+    });
+    const data = await res.json();
     if (data.ask) {
       askField.style.display = "flex";
-      askInput.value = "";
       askInput.placeholder = data.ask;
-      askInput.focus();
+      askInput.value = "";
     } else {
       output.textContent = data.result || "[No output returned]";
     }
-  })
-  .catch(err => {
+  } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
-  });
+  }
+  resizeParent();
 }
 
-function sendAnswer() {
-  const answer = document.getElementById("askInput").value;
-  const output = document.getElementById("output");
-
-  fetch("https://jargon-engine.onrender.com/answer", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answer: answer })
-  })
-  .then(res => res.json())
-  .then(data => {
+async function sendAnswer() {
+  const ans = askInput.value;
+  try {
+    const res = await fetch("https://jargon-engine.onrender.com/answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer: ans }),
+    });
+    const data = await res.json();
     if (data.ask) {
-      document.getElementById("askInput").placeholder = data.ask;
-      document.getElementById("askInput").value = "";
+      askInput.placeholder = data.ask;
+      askInput.value = "";
     } else {
-      document.getElementById("askField").style.display = "none";
+      askField.style.display = "none";
       output.textContent = data.result || "[No output returned]";
     }
-  })
-  .catch(err => {
+  } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
-  });
+  }
+  resizeParent();
 }
 
 function copyInput() {
-  navigator.clipboard.writeText(document.getElementById("inputCode").value)
-    .then(() => alert("Input copied to clipboard!"));
+  navigator.clipboard.writeText(textarea.value).then(() => alert("Input copied!"));
 }
 
 function copyOutput() {
-  navigator.clipboard.writeText(document.getElementById("output").textContent)
-    .then(() => alert("Output copied to clipboard!"));
+  navigator.clipboard.writeText(output.textContent).then(() => alert("Output copied!"));
 }
+
+window.addEventListener("load", resizeParent);
+window.addEventListener("resize", resizeParent);
+new MutationObserver(resizeParent).observe(document.body, {
+  childList: true,
+  subtree: true,
+  characterData: true,
+});
