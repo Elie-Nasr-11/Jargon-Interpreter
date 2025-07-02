@@ -153,7 +153,12 @@
     </div>
 
     <div id="output" tabindex="0"></div>
-
+    
+    <div id="askField" style="display:none; margin-top: 20px; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <input id="askInput" type="text" placeholder="Enter your answer..." style="padding: 10px; font-family: 'Source Code Pro', monospace; font-size: 13px; flex: 1; min-width: 200px;" />
+      <button onclick="sendAnswer()">Submit</button>
+    </div>
+    
     <div class="button-row">
       <button onclick="copyInput()">Copy Input</button>
       <button onclick="copyOutput()">Copy Output</button>
