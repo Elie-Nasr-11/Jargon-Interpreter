@@ -3,6 +3,10 @@ const output = document.getElementById("output");
 const askField = document.getElementById("askField");
 const askInput = document.getElementById("askInput");
 
+let memory = {};       // Tracks memory state across ASK cycles
+let code = "";         // Code stays constant across calls
+let askVar = null;     // Current variable to store ASK result
+
 function resizeParent() {
   setTimeout(() => {
     const h = document.documentElement.scrollHeight;
@@ -11,51 +15,72 @@ function resizeParent() {
 }
 
 async function sendCode() {
-  const code = textarea.value;
-  output.textContent = "";
+  code = textarea.value;
+  memory = {}; // reset memory on first run
   askField.style.display = "none";
+  output.textContent = "";
 
   try {
     const res = await fetch("https://jargon-engine.onrender.com/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input: code }),
+      body: JSON.stringify({ code, memory }),
     });
     const data = await res.json();
+
     if (data.ask) {
+      askVar = data.ask_var;
       askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
+      if (data.result) {
+        output.textContent = data.result.join("\n");
+      }
     } else {
+      askField.style.display = "none";
       output.textContent = data.result || "[No output returned]";
     }
+
+    if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
   }
+
   resizeParent();
 }
 
 async function sendAnswer() {
   const ans = askInput.value;
+  if (askVar) memory[askVar] = ans;
+
   try {
-    const res = await fetch("https://jargon-engine.onrender.com/answer", {
+    const res = await fetch("https://jargon-engine.onrender.com/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answer: ans }),
+      body: JSON.stringify({ code, memory }),
     });
     const data = await res.json();
+
     if (data.ask) {
+      askVar = data.ask_var;
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
+      if (data.result) {
+        output.textContent = data.result.join("\n");
+      }
     } else {
       askField.style.display = "none";
       output.textContent = data.result || "[No output returned]";
+      askVar = null;
     }
+
+    if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
   }
+
   resizeParent();
 }
 
