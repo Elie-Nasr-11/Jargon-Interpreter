@@ -4,8 +4,8 @@ const askField = document.getElementById("askField");
 const askInput = document.getElementById("askInput");
 
 let memory = {};       // Tracks memory state across ASK cycles
-let code = "";         // Code stays constant across calls
-let askVar = null;     // Current variable to store ASK result
+let code = "";         // Current Jargon code
+let askVar = null;     // The variable name tied to the ASK input
 
 function resizeParent() {
   setTimeout(() => {
@@ -14,15 +14,14 @@ function resizeParent() {
   }, 50);
 }
 
-async function sendAnswer() {
-  const ans = askInput.value;
-  if (!askVar) return;
-
-  // Set the answer in memory
-  memory[askVar] = ans;
+async function sendCode() {
+  code = textarea.value;
+  memory = {}; // Reset memory
+  askField.style.display = "none";
+  output.textContent = "";
 
   try {
-    const res = await fetch("https://jargon-engine.onrender.com/resume", {
+    const res = await fetch("https://jargon-engine.onrender.com/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, memory }),
@@ -36,12 +35,15 @@ async function sendAnswer() {
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
+      if (data.result) {
+        output.textContent = data.result.join("\n");
+      }
     } else {
       askField.style.display = "none";
       askVar = null;
+      output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
     }
 
-    output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
     if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
@@ -58,17 +60,17 @@ async function sendAnswer() {
     const res = await fetch("https://jargon-engine.onrender.com/resume", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ var: askVar, value: ans }),
+      body: JSON.stringify({ var: askVar, value: ans, code, memory }),
     });
 
     const data = await res.json();
 
     if (data.ask) {
       askVar = data.ask_var;
-      askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
+      askField.style.display = "flex";
     } else {
       askField.style.display = "none";
       askVar = null;
