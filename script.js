@@ -56,8 +56,8 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
-  console.log("[SEND ANSWER] Triggered");
-  console.log("Sending:", { var: askVar, value: ans });
+  askField.style.display = "none";
+  output.textContent += `\n> ${ans}\n`;  // Optional: echo back input
 
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
@@ -66,13 +66,9 @@ async function sendAnswer() {
       body: JSON.stringify({ var: askVar, value: ans, code, memory }),
     });
 
-    console.log("[SEND ANSWER] Got response");
-
     const data = await res.json();
 
-    console.log("[SEND ANSWER] Parsed JSON:", data);
-
-    output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
+    if (data.memory) memory = data.memory;
 
     if (data.ask) {
       askVar = data.ask_var;
@@ -85,10 +81,14 @@ async function sendAnswer() {
       askVar = null;
     }
 
-    if (data.memory) memory = data.memory;
+    if (Array.isArray(data.result)) {
+      output.textContent += "\n" + data.result.join("\n");
+    } else {
+      output.textContent += "\n" + (data.result || "[No output returned]");
+    }
+
   } catch (err) {
-    output.textContent = `[ERROR] ${err.message}`;
-    console.error("[SEND ANSWER] Error:", err);
+    output.textContent += `\n[ERROR] ${err.message}`;
   }
 
   resizeParent();
