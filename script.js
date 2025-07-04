@@ -20,6 +20,8 @@ async function sendCode() {
   askField.style.display = "none";
   output.textContent = "";
 
+  alert("Sending code to backend...");
+
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/run", {
       method: "POST",
@@ -27,7 +29,10 @@ async function sendCode() {
       body: JSON.stringify({ code, memory }),
     });
 
+    alert("Response received");
+
     const data = await res.json();
+    alert("Parsed JSON: " + JSON.stringify(data));
 
     if (data.ask) {
       askVar = data.ask_var;
@@ -46,6 +51,7 @@ async function sendCode() {
 
     if (data.memory) memory = data.memory;
   } catch (err) {
+    alert("Caught error: " + err.message);
     output.textContent = `[ERROR] ${err.message}`;
   }
 
