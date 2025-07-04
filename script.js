@@ -14,6 +14,10 @@ function resizeParent() {
   }, 50);
 }
 
+function scrollOutputToBottom() {
+  output.scrollTop = output.scrollHeight;
+}
+
 async function sendCode() {
   code = textarea.value;
   memory = {};
@@ -35,29 +39,35 @@ async function sendCode() {
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
-      if (data.result) {
-        output.textContent = data.result.join("\n");
+
+      if (Array.isArray(data.result)) {
+        output.textContent += "\n" + data.result.join("\n");
+      } else {
+        output.textContent += "\n" + (data.result || "[No output returned]");
       }
     } else {
       askField.style.display = "none";
       askVar = null;
-      output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
+
+      if (Array.isArray(data.result)) {
+        output.textContent += "\n" + data.result.join("\n");
+      } else {
+        output.textContent += "\n" + (data.result || "[No output returned]");
+      }
     }
 
     if (data.memory) memory = data.memory;
   } catch (err) {
-    output.textContent = `[ERROR] ${err.message}`;
+    output.textContent += `\n[ERROR] ${err.message}`;
   }
 
+  scrollOutputToBottom();
   resizeParent();
 }
 
 async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
-
-  askField.style.display = "none";
-  output.textContent += `\n> ${ans}\n`;  // Optional: echo back input
 
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
@@ -67,8 +77,6 @@ async function sendAnswer() {
     });
 
     const data = await res.json();
-
-    if (data.memory) memory = data.memory;
 
     if (data.ask) {
       askVar = data.ask_var;
@@ -87,22 +95,24 @@ async function sendAnswer() {
       output.textContent += "\n" + (data.result || "[No output returned]");
     }
 
+    if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent += `\n[ERROR] ${err.message}`;
   }
 
+  scrollOutputToBottom();
   resizeParent();
 }
 
 function copyInput() {
   navigator.clipboard.writeText(textarea.value).then(() => {
-    // Optional: show temporary visual feedback
+    // Optional: show feedback
   });
 }
 
 function copyOutput() {
   navigator.clipboard.writeText(output.textContent).then(() => {
-    // Optional: show temporary visual feedback
+    // Optional: show feedback
   });
 }
 
