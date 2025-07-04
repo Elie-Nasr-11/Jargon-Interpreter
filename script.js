@@ -22,6 +22,7 @@ async function sendCode() {
   code = textarea.value;
   memory = {};
   askField.style.display = "none";
+  askVar = null; 
   output.textContent = "";
 
   try {
