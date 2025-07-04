@@ -52,30 +52,29 @@ async function sendCode() {
 
 async function sendAnswer() {
   const ans = askInput.value;
-  if (askVar) memory[askVar] = ans;
+  if (!askVar) return;
 
   try {
-    const res = await fetch("https://jargon-engine.onrender.com/run", {
+    const res = await fetch("https://jargon-engine.onrender.com/resume", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, memory }),
+      body: JSON.stringify({ var: askVar, value: ans }),
     });
+
     const data = await res.json();
 
     if (data.ask) {
       askVar = data.ask_var;
+      askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
-      if (data.result) {
-        output.textContent = data.result.join("\n");
-      }
     } else {
       askField.style.display = "none";
-      output.textContent = data.result || "[No output returned]";
       askVar = null;
     }
 
+    output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
     if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
