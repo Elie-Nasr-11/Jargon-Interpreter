@@ -21,7 +21,7 @@ async function sendCode() {
   output.textContent = "";
 
   try {
-    const res = await fetch("https://jargon-engine.onrender.com/run", {
+    const res = await fetch("https://jargon-engine-test.onrender.com/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, memory }),
@@ -57,7 +57,7 @@ async function sendAnswer() {
   if (!askVar) return;
 
   try {
-    const res = await fetch("https://jargon-engine.onrender.com/resume", {
+    const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ var: askVar, value: ans, code, memory }),
