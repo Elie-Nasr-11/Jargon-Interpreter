@@ -31,11 +31,8 @@ def resume():
     code = data.get("code", "")
     memory = data.get("memory", {})
 
-    interpreter.code = code
-    interpreter.memory = memory
-
     try:
-        result = interpreter.resume_loop()
+        result = interpreter.run(code, memory)
         return jsonify({
             "result": result["output"],
             "memory": result["memory"]
@@ -47,6 +44,6 @@ def resume():
             "result": interpreter.output_log,
             "memory": interpreter.memory
         })
-
+        
 if __name__ == "__main__":
     app.run(debug=True)
