@@ -20,8 +20,6 @@ async function sendCode() {
   askField.style.display = "none";
   output.textContent = "";
 
-  alert("Sending code to backend...");
-
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/run", {
       method: "POST",
@@ -29,10 +27,7 @@ async function sendCode() {
       body: JSON.stringify({ code, memory }),
     });
 
-    alert("Response received");
-
     const data = await res.json();
-    alert("Parsed JSON: " + JSON.stringify(data));
 
     if (data.ask) {
       askVar = data.ask_var;
@@ -51,7 +46,6 @@ async function sendCode() {
 
     if (data.memory) memory = data.memory;
   } catch (err) {
-    alert("Caught error: " + err.message);
     output.textContent = `[ERROR] ${err.message}`;
   }
 
@@ -62,8 +56,6 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
-  alert("Calling /resume...\nVariable: " + askVar + "\nValue: " + ans);
-
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
       method: "POST",
@@ -72,7 +64,6 @@ async function sendAnswer() {
     });
 
     const data = await res.json();
-    alert("Received response:\n" + JSON.stringify(data));
 
     if (data.ask) {
       askVar = data.ask_var;
@@ -95,11 +86,15 @@ async function sendAnswer() {
 }
 
 function copyInput() {
-  navigator.clipboard.writeText(textarea.value).then(() => alert("Input copied!"));
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    // Optional: show temporary visual feedback
+  });
 }
 
 function copyOutput() {
-  navigator.clipboard.writeText(output.textContent).then(() => alert("Output copied!"));
+  navigator.clipboard.writeText(output.textContent).then(() => {
+    // Optional: show temporary visual feedback
+  });
 }
 
 window.addEventListener("load", resizeParent);
