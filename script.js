@@ -3,9 +3,9 @@ const output = document.getElementById("output");
 const askField = document.getElementById("askField");
 const askInput = document.getElementById("askInput");
 
-let memory = {};       // Tracks memory state across ASK cycles
-let code = "";         // Current Jargon code
-let askVar = null;     // The variable name tied to the ASK input
+let memory = {};
+let code = "";
+let askVar = null;
 
 function resizeParent() {
   setTimeout(() => {
@@ -16,7 +16,7 @@ function resizeParent() {
 
 async function sendCode() {
   code = textarea.value;
-  memory = {}; // Reset memory
+  memory = {};
   askField.style.display = "none";
   output.textContent = "";
 
@@ -56,6 +56,8 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
+  alert("Calling /resume...\nVariable: " + askVar + "\nValue: " + ans);
+
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
       method: "POST",
@@ -64,6 +66,7 @@ async function sendAnswer() {
     });
 
     const data = await res.json();
+    alert("Received response:\n" + JSON.stringify(data));
 
     if (data.ask) {
       askVar = data.ask_var;
