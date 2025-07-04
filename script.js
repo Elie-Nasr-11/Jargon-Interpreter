@@ -65,6 +65,8 @@ async function sendAnswer() {
 
     const data = await res.json();
 
+    output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
+
     if (data.ask) {
       askVar = data.ask_var;
       askInput.placeholder = data.ask;
@@ -76,7 +78,6 @@ async function sendAnswer() {
       askVar = null;
     }
 
-    output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
     if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
