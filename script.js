@@ -56,6 +56,9 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
+  console.log("[SEND ANSWER] Triggered");
+  console.log("Sending:", { var: askVar, value: ans });
+
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
       method: "POST",
@@ -63,7 +66,11 @@ async function sendAnswer() {
       body: JSON.stringify({ var: askVar, value: ans, code, memory }),
     });
 
+    console.log("[SEND ANSWER] Got response");
+
     const data = await res.json();
+
+    console.log("[SEND ANSWER] Parsed JSON:", data);
 
     output.textContent = data.result ? data.result.join("\n") : "[No output returned]";
 
@@ -81,6 +88,7 @@ async function sendAnswer() {
     if (data.memory) memory = data.memory;
   } catch (err) {
     output.textContent = `[ERROR] ${err.message}`;
+    console.error("[SEND ANSWER] Error:", err);
   }
 
   resizeParent();
