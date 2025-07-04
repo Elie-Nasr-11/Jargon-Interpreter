@@ -78,15 +78,13 @@ async function sendAnswer() {
 
     const data = await res.json();
 
+    askField.style.display = data.ask ? "flex" : "none";
+    askVar = data.ask ? data.ask_var : null;
+
     if (data.ask) {
-      askVar = data.ask_var;
       askInput.placeholder = data.ask;
       askInput.value = "";
       askInput.focus();
-      askField.style.display = "flex";
-    } else {
-      askField.style.display = "none";
-      askVar = null;
     }
 
     if (Array.isArray(data.result)) {
