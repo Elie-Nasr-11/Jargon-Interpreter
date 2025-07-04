@@ -23,7 +23,7 @@
       font-family: 'Poppins', sans-serif;
       background: var(--bg);
       color: var(--text);
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .container {
@@ -49,7 +49,7 @@
       max-height: calc(1.5em * 30 + 20px);
       padding: 10px;
       overflow: auto;
-      resize: none !important;
+      resize: none;
     }
 
     #output {
@@ -130,13 +130,18 @@
       align-items: center;
     }
 
-    #askInput {
+    #askField input {
       flex: 1;
       font-size: 13px;
       padding: 10px;
       font-family: 'Source Code Pro', monospace;
       border: 2px solid #c42d88;
       width: 60%;
+    }
+
+    #askField button {
+      font-size: 12px;
+      padding: 10px 20px;
     }
   </style>
 </head>
