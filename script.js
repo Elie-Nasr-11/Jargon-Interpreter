@@ -22,7 +22,7 @@ async function sendCode() {
   code = textarea.value;
   memory = {};
   askField.style.display = "none";
-  askVar = null; 
+  askVar = null;
   output.textContent = "";
 
   try {
@@ -39,53 +39,11 @@ async function sendCode() {
       askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
+      askInput.disabled = false;
       askInput.focus();
-
-      if (Array.isArray(data.result)) {
-        output.textContent += "\n" + data.result.join("\n");
-      } else {
-        output.textContent += "\n" + (data.result || "[No output returned]");
-      }
     } else {
       askField.style.display = "none";
       askVar = null;
-
-      if (Array.isArray(data.result)) {
-        output.textContent += "\n" + data.result.join("\n");
-      } else {
-        output.textContent += "\n" + (data.result || "[No output returned]");
-      }
-    }
-
-    if (data.memory) memory = data.memory;
-  } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
-  }
-
-  scrollOutputToBottom();
-  resizeParent();
-}
-
-async function sendAnswer() {
-  const ans = askInput.value;
-  if (!askVar) return;
-
-  try {
-    const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ var: askVar, value: ans, code, memory }),
-    });
-
-    const data = await res.json();
-
-    askField.style.display = data.ask ? "flex" : "none";
-    askVar = data.ask ? data.ask_var : null;
-
-    if (data.ask) {
-      askInput.placeholder = data.ask;
-      askInput.value = "";
-      askInput.focus();
     }
 
     if (Array.isArray(data.result)) {
@@ -96,7 +54,49 @@ async function sendAnswer() {
 
     if (data.memory) memory = data.memory;
   } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
+    output.textContent += `\n[ERROR] Could not connect to server`;
+  }
+
+  scrollOutputToBottom();
+  resizeParent();
+}
+
+async function sendAnswer() {
+  const ans = askInput.value;
+  if (!askVar) return;
+
+  askInput.disabled = true;
+
+  try {
+    const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ var: askVar, value: ans, code, memory }),
+    });
+
+    const data = await res.json();
+
+    if (data.ask) {
+      askVar = data.ask_var;
+      askField.style.display = "flex";
+      askInput.placeholder = data.ask;
+      askInput.value = "";
+      askInput.disabled = false;
+      askInput.focus();
+    } else {
+      askField.style.display = "none";
+      askVar = null;
+    }
+
+    if (Array.isArray(data.result)) {
+      output.textContent += "\n" + data.result.join("\n");
+    } else {
+      output.textContent += "\n" + (data.result || "[No output returned]");
+    }
+
+    if (data.memory) memory = data.memory;
+  } catch (err) {
+    output.textContent += `\n[ERROR] Could not connect to server`;
   }
 
   scrollOutputToBottom();
@@ -104,16 +104,19 @@ async function sendAnswer() {
 }
 
 function copyInput() {
-  navigator.clipboard.writeText(textarea.value).then(() => {
-    // Optional: show feedback
-  });
+  navigator.clipboard.writeText(textarea.value);
 }
 
 function copyOutput() {
-  navigator.clipboard.writeText(output.textContent).then(() => {
-    // Optional: show feedback
-  });
+  navigator.clipboard.writeText(output.textContent);
 }
+
+askInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendAnswer();
+  }
+});
 
 window.addEventListener("load", resizeParent);
 window.addEventListener("resize", resizeParent);
