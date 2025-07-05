@@ -18,11 +18,16 @@ function scrollOutputToBottom() {
   output.scrollTop = output.scrollHeight;
 }
 
+function highlightOutput() {
+  output.classList.add("highlight");
+  setTimeout(() => output.classList.remove("highlight"), 300);
+}
+
 async function sendCode() {
   code = textarea.value;
   memory = {};
   askField.style.display = "none";
-  askVar = null;
+  askVar = null; 
   output.textContent = "";
 
   try {
@@ -39,11 +44,7 @@ async function sendCode() {
       askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
-      askInput.disabled = false;
       askInput.focus();
-    } else {
-      askField.style.display = "none";
-      askVar = null;
     }
 
     if (Array.isArray(data.result)) {
@@ -53,8 +54,10 @@ async function sendCode() {
     }
 
     if (data.memory) memory = data.memory;
+
+    highlightOutput();
   } catch (err) {
-    output.textContent += `\n[ERROR] Could not connect to server`;
+    output.textContent += `\n[ERROR] ${err.message}`;
   }
 
   scrollOutputToBottom();
@@ -65,8 +68,6 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
-  askInput.disabled = true;
-
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
       method: "POST",
@@ -76,16 +77,13 @@ async function sendAnswer() {
 
     const data = await res.json();
 
+    askField.style.display = data.ask ? "flex" : "none";
+    askVar = data.ask ? data.ask_var : null;
+
     if (data.ask) {
-      askVar = data.ask_var;
-      askField.style.display = "flex";
       askInput.placeholder = data.ask;
       askInput.value = "";
-      askInput.disabled = false;
       askInput.focus();
-    } else {
-      askField.style.display = "none";
-      askVar = null;
     }
 
     if (Array.isArray(data.result)) {
@@ -95,8 +93,10 @@ async function sendAnswer() {
     }
 
     if (data.memory) memory = data.memory;
+
+    highlightOutput();
   } catch (err) {
-    output.textContent += `\n[ERROR] Could not connect to server`;
+    output.textContent += `\n[ERROR] ${err.message}`;
   }
 
   scrollOutputToBottom();
@@ -104,19 +104,35 @@ async function sendAnswer() {
 }
 
 function copyInput() {
-  navigator.clipboard.writeText(textarea.value);
+  navigator.clipboard.writeText(textarea.value).then(() => {
+    flash(output, "[Input copied]");
+  });
 }
 
 function copyOutput() {
-  navigator.clipboard.writeText(output.textContent);
+  navigator.clipboard.writeText(output.textContent).then(() => {
+    flash(output, "[Output copied]");
+  });
 }
 
-askInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    sendAnswer();
-  }
-});
+function flash(el, msg) {
+  const old = el.textContent;
+  el.textContent = msg;
+  el.classList.add("flash");
+  setTimeout(() => {
+    el.textContent = old;
+    el.classList.remove("flash");
+  }, 600);
+}
+
+function resetAll() {
+  textarea.value = "";
+  output.textContent = "";
+  memory = {};
+  askVar = null;
+  askInput.value = "";
+  askField.style.display = "none";
+}
 
 window.addEventListener("load", resizeParent);
 window.addEventListener("resize", resizeParent);
