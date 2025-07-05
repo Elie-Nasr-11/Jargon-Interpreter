@@ -77,6 +77,15 @@
       background-color: var(--green-light) !important;
     }
 
+    .highlight {
+      animation: flash-green 0.5s;
+    }
+
+    @keyframes flash-green {
+      from { background-color: #bddbb7; }
+      to { background-color: white; }
+    }
+
     .button-row {
       display: flex;
       gap: 32px;
@@ -118,11 +127,6 @@
       border-radius: 10px;
     }
 
-    textarea, #output {
-      -ms-overflow-style: auto;
-      scrollbar-width: thin;
-    }
-
     #askField {
       display: none;
       margin-top: 20px;
@@ -151,6 +155,7 @@
 
     <div class="button-row">
       <button onclick="sendCode()">Run Code</button>
+      <button onclick="resetAll()">Reset</button>
     </div>
 
     <div id="output" tabindex="0"></div>
