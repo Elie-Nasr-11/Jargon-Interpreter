@@ -106,42 +106,6 @@ async function sendAnswer() {
   resizeParent();
 }
 
-async function sendRequest(endpoint) {
-  try {
-    const res = await fetch(`https://jargon-engine-test.onrender.com/${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, memory }),
-    });
-
-    const data = await res.json();
-
-    if (Array.isArray(data.result)) {
-      output.textContent += "\n" + data.result.join("\n");
-    } else {
-      output.textContent += "\n" + (data.result || "[No output returned]");
-    }
-
-    if (data.memory) memory = data.memory;
-
-    if (data.ask) {
-      askVar = data.ask_var;
-      askField.style.display = "flex";
-      askInput.placeholder = data.ask;
-      askInput.focus();
-    } else {
-      askVar = null;
-    }
-
-    highlightOutput();
-  } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
-  }
-
-  scrollOutputToBottom();
-  resizeParent();
-}
-
 function copyInput() {
   navigator.clipboard.writeText(textarea.value).then(() => {
     flash(output, "[Input copied]");
