@@ -46,11 +46,8 @@ function typeOutput(text, container, index = 0, callback = () => {}) {
 function appendStyledOutput(lines, clear = false) {
   if (!Array.isArray(lines)) lines = [lines];
 
-  if (clear) {
-    output.innerHTML = "";
-  } else {
-    fadeOldResponses();
-  }
+  fadeOldResponses(); 
+  if (clear) output.innerHTML = "";
 
   lines.forEach(line => {
     const div = document.createElement("div");
