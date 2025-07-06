@@ -29,7 +29,7 @@ function fadeOldResponses() {
   lines.forEach(line => {
     line.style.color = "#0077cc";
     line.style.fontWeight = "normal";
-    line.style.fontSize = "0.85em";
+    line.style.fontSize = "0.8em";
   });
 }
 
@@ -52,7 +52,7 @@ function appendStyledOutput(lines) {
     const div = document.createElement("div");
     div.className = "response-line";
     div.style.color = "#c42d88";
-    div.style.fontWeight = "bold";
+    div.style.fontWeight = "normal";
     div.style.marginTop = "1em";
     output.appendChild(div);
     typeOutput(line, div, 0, scrollOutputToBottom);
