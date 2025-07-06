@@ -62,25 +62,6 @@
       position: relative;
     }
 
-    #output::before {
-      content: attr(data-placeholder);
-      color: var(--green-hover);
-      font-style: italic;
-      position: absolute;
-      padding: 24px;
-      pointer-events: none;
-      white-space: pre-wrap;
-      display: block;
-    }
-
-    #output:empty::before {
-      display: block;
-    }
-
-    #output:not(:empty)::before {
-      display: none;
-    }
-
     textarea::placeholder {
       color: var(--green-hover);
     }
@@ -180,6 +161,8 @@
       <button onclick="resetAll()">Reset</button>
     </div>
 
+    <div id="output"></div>
+    
     <div id="askField">
       <input id="askInput" type="text" placeholder="" />
       <button onclick="sendAnswer()">Submit</button>
