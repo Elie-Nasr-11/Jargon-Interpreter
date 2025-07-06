@@ -10,6 +10,7 @@
       --bg: transparent;
       --text: #0077cc;
       --accent: #c42d88;
+      --green: #4caf50;
       --green-hover: #81be79;
       --green-light: #bddbb7;
     }
@@ -36,7 +37,6 @@
       font-size: 13px;
       font-family: 'Source Code Pro', monospace;
       background: #ffffff;
-      color: var(--text);
       border: 2px solid transparent;
       border-radius: 0;
       transition: border 0.3s, background-color 0.3s;
@@ -48,6 +48,7 @@
       padding: 10px;
       overflow: auto;
       resize: none;
+      color: var(--text);
     }
 
     #output {
@@ -57,6 +58,27 @@
       overflow: auto;
       transition: height 0.3s ease;
       white-space: pre-wrap;
+      color: var(--green);
+      position: relative;
+    }
+
+    #output::before {
+      content: attr(data-placeholder);
+      color: var(--green-hover);
+      font-style: italic;
+      position: absolute;
+      padding: 24px;
+      pointer-events: none;
+      white-space: pre-wrap;
+      display: block;
+    }
+
+    #output:empty::before {
+      display: block;
+    }
+
+    #output:not(:empty)::before {
+      display: none;
     }
 
     textarea::placeholder {
@@ -103,6 +125,7 @@
       color: var(--accent);
       border-radius: 0;
       transition: all 0.2s ease;
+      font-weight: normal;
     }
 
     button:hover {
@@ -153,11 +176,11 @@
     <textarea id="inputCode" placeholder="Write code here..."></textarea>
 
     <div class="button-row">
-      <button onclick="sendCode()">Run Code</button>
+      <button onclick="sendCode()" style="font-weight: bold;">Run Code</button>
       <button onclick="resetAll()">Reset</button>
     </div>
 
-    <div id="output" tabindex="0"></div>
+    <div id="output" tabindex="0" data-placeholder="Output"></div>
 
     <div id="askField">
       <input id="askInput" type="text" placeholder="" />
