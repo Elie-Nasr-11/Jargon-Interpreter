@@ -14,9 +14,7 @@
       --green-light: #bddbb7;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
@@ -58,6 +56,7 @@
       padding: 24px;
       overflow: auto;
       transition: height 0.3s ease;
+      white-space: pre-wrap; /* ✅ Ensures line breaks show up */
     }
 
     textarea::placeholder {
