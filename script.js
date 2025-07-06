@@ -51,7 +51,7 @@ function appendStyledOutput(lines) {
   lines.forEach(line => {
     const div = document.createElement("div");
     div.className = "response-line";
-    div.style.color = "#c42d88";
+    div.style.color = "#4caf50"; 
     div.style.fontWeight = "normal";
     div.style.marginTop = "1em";
     output.appendChild(div);
