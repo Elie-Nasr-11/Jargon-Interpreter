@@ -6,6 +6,7 @@ const askInput = document.getElementById("askInput");
 let memory = {};
 let code = "";
 let askVar = null;
+let answers = [];
 
 function resizeParent() {
   setTimeout(() => {
@@ -26,22 +27,83 @@ function highlightOutput() {
 async function sendCode() {
   code = textarea.value.trim();
   memory = {};
+  answers = [];
   askVar = null;
   output.textContent = "";
   askField.style.display = "none";
 
-  await sendRequest("run");
+  try {
+    const res = await fetch("https://jargon-engine-test.onrender.com/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, answers }),
+    });
+
+    const data = await res.json();
+
+    askField.style.display = data.ask ? "flex" : "none";
+    askVar = data.ask ? data.ask_var : null;
+
+    if (data.ask) {
+      askInput.placeholder = data.ask;
+      askInput.value = "";
+      askInput.focus();
+    }
+
+    if (Array.isArray(data.result)) {
+      output.textContent += "\n" + data.result.join("\n");
+    } else {
+      output.textContent += "\n" + (data.result || "[No output returned]");
+    }
+
+    if (data.memory) memory = data.memory;
+
+    highlightOutput();
+  } catch (err) {
+    output.textContent += `\n[ERROR] ${err.message}`;
+  }
+
+  scrollOutputToBottom();
+  resizeParent();
 }
 
 async function sendAnswer() {
-  const ans = askInput.value.trim();
+  const ans = askInput.value;
   if (!askVar) return;
 
-  memory[askVar] = ans;
-  askInput.value = "";
-  askField.style.display = "none";
+  answers.push(ans);  // Save the answer for resending
 
-  await sendRequest("run"); // Re-run from top with updated memory
+  try {
+    const res = await fetch("https://jargon-engine-test.onrender.com/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, answers }),
+    });
+
+    const data = await res.json();
+
+    askField.style.display = data.ask ? "flex" : "none";
+    askVar = data.ask ? data.ask_var : null;
+
+    if (data.ask) {
+      askInput.placeholder = data.ask;
+      askInput.value = "";
+      askInput.focus();
+    }
+
+    if (Array.isArray(data.result)) {
+      output.textContent += "\n" + data.result.join("\n");
+    } else {
+      output.textContent += "\n" + (data.result || "[No output returned]");
+    }
+
+    highlightOutput();
+  } catch (err) {
+    output.textContent += `\n[ERROR] ${err.message}`;
+  }
+
+  scrollOutputToBottom();
+  resizeParent();
 }
 
 async function sendRequest(endpoint) {
@@ -109,6 +171,7 @@ function resetAll() {
   askVar = null;
   askInput.value = "";
   askField.style.display = "none";
+  answers = [];
 }
 
 window.addEventListener("load", resizeParent);
