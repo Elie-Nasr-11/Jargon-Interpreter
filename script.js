@@ -24,14 +24,29 @@ function highlightOutput() {
 }
 
 async function sendCode() {
-  code = textarea.value;
+  code = textarea.value.trim();
   memory = {};
-  askField.style.display = "none";
-  askVar = null; 
+  askVar = null;
   output.textContent = "";
+  askField.style.display = "none";
 
+  await sendRequest("run");
+}
+
+async function sendAnswer() {
+  const ans = askInput.value.trim();
+  if (!askVar) return;
+
+  memory[askVar] = ans;
+  askInput.value = "";
+  askField.style.display = "none";
+
+  await sendRequest("run"); // Re-run from top with updated memory
+}
+
+async function sendRequest(endpoint) {
   try {
-    const res = await fetch("https://jargon-engine-test.onrender.com/run", {
+    const res = await fetch(`https://jargon-engine-test.onrender.com/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, memory }),
@@ -39,60 +54,22 @@ async function sendCode() {
 
     const data = await res.json();
 
+    if (Array.isArray(data.result)) {
+      output.textContent += "\n" + data.result.join("\n");
+    } else {
+      output.textContent += "\n" + (data.result || "[No output returned]");
+    }
+
+    if (data.memory) memory = data.memory;
+
     if (data.ask) {
       askVar = data.ask_var;
       askField.style.display = "flex";
       askInput.placeholder = data.ask;
-      askInput.value = "";
       askInput.focus();
-    }
-
-    if (Array.isArray(data.result)) {
-      output.textContent += "\n" + data.result.join("\n");
     } else {
-      output.textContent += "\n" + (data.result || "[No output returned]");
+      askVar = null;
     }
-
-    if (data.memory) memory = data.memory;
-
-    highlightOutput();
-  } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
-  }
-
-  scrollOutputToBottom();
-  resizeParent();
-}
-
-async function sendAnswer() {
-  const ans = askInput.value;
-  if (!askVar) return;
-
-  try {
-    const res = await fetch("https://jargon-engine-test.onrender.com/resume", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ var: askVar, value: ans, code, memory }),
-    });
-
-    const data = await res.json();
-
-    askField.style.display = data.ask ? "flex" : "none";
-    askVar = data.ask ? data.ask_var : null;
-
-    if (data.ask) {
-      askInput.placeholder = data.ask;
-      askInput.value = "";
-      askInput.focus();
-    }
-
-    if (Array.isArray(data.result)) {
-      output.textContent += "\n" + data.result.join("\n");
-    } else {
-      output.textContent += "\n" + (data.result || "[No output returned]");
-    }
-
-    if (data.memory) memory = data.memory;
 
     highlightOutput();
   } catch (err) {
