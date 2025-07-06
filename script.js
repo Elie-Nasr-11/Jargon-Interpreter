@@ -50,10 +50,11 @@ async function sendCode() {
       askInput.focus();
     }
 
-    if (Array.isArray(data.result)) {
-      output.textContent += "\n" + data.result.join("\n");
-    } else {
-      output.textContent += "\n" + (data.result || "[No output returned]");
+    if (Array.isArray(data.result) && data.result.length > 0) {
+      if (output.textContent.trim() !== "") {
+        output.textContent += "\n\n";  // Separation
+      }
+      output.textContent += data.result.join("\n");
     }
 
     if (data.memory) memory = data.memory;
@@ -91,11 +92,14 @@ async function sendAnswer() {
       askInput.focus();
     }
 
-    if (Array.isArray(data.result)) {
-      output.textContent += "\n" + data.result.join("\n");
-    } else {
-      output.textContent += "\n" + (data.result || "[No output returned]");
+    if (Array.isArray(data.result) && data.result.length > 0) {
+      if (output.textContent.trim() !== "") {
+        output.textContent += "\n\n";  // Separation
+      }
+      output.textContent += data.result.join("\n");
     }
+
+    if (data.memory) memory = data.memory;
 
     highlightOutput();
   } catch (err) {
