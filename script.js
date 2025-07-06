@@ -68,7 +68,6 @@ async function sendCode() {
   memory = {};
   answers = [];
   askVar = null;
-  output.innerHTML = "";
   askField.style.display = "none";
 
   try {
