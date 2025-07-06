@@ -194,5 +194,17 @@
   </div>
 
   <script src="script.js"></script>
+  <script>
+    document.getElementById("inputCode").addEventListener("keydown", function (e) {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const indent = "  "; 
+        this.value = this.value.substring(0, start) + indent + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + indent.length;
+      }
+    });
+  </script>
 </body>
 </html>
