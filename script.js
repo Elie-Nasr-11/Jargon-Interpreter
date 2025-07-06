@@ -125,7 +125,7 @@ async function sendAnswer() {
       askInput.focus();
     }
 
-    appendStyledOutput(data.result || "[No output returned]", true);
+    appendStyledOutput(data.result || "[No output returned]");
 
     if (data.memory) memory = data.memory;
 
