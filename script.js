@@ -24,15 +24,29 @@ function highlightOutput() {
   setTimeout(() => output.classList.remove("highlight"), 300);
 }
 
-function appendStyledOutput(lines) {
-  if (!Array.isArray(lines)) lines = [lines];
-
-  const prevLines = output.querySelectorAll("div.response-line");
-  prevLines.forEach(line => {
+function fadeOldResponses() {
+  const lines = output.querySelectorAll("div.response-line");
+  lines.forEach(line => {
     line.style.color = "#0077cc";
     line.style.fontWeight = "normal";
     line.style.fontSize = "0.85em";
   });
+}
+
+function typeOutput(text, container, index = 0, callback = () => {}) {
+  if (index < text.length) {
+    container.textContent += text.charAt(index);
+    setTimeout(() => typeOutput(text, container, index + 1, callback), 15);
+  } else {
+    container.textContent += "\n\n";
+    callback();
+  }
+}
+
+function appendStyledOutput(lines) {
+  if (!Array.isArray(lines)) lines = [lines];
+
+  fadeOldResponses();
 
   lines.forEach(line => {
     const div = document.createElement("div");
@@ -40,8 +54,8 @@ function appendStyledOutput(lines) {
     div.style.color = "#c42d88";
     div.style.fontWeight = "bold";
     div.style.marginTop = "1em";
-    div.textContent = line;
     output.appendChild(div);
+    typeOutput(line, div, 0, scrollOutputToBottom);
   });
 }
 
@@ -80,7 +94,6 @@ async function sendCode() {
     appendStyledOutput(`[ERROR] ${err.message}`);
   }
 
-  scrollOutputToBottom();
   resizeParent();
 }
 
@@ -117,7 +130,6 @@ async function sendAnswer() {
     appendStyledOutput(`[ERROR] ${err.message}`);
   }
 
-  scrollOutputToBottom();
   resizeParent();
 }
 
