@@ -43,10 +43,14 @@ function typeOutput(text, container, index = 0, callback = () => {}) {
   }
 }
 
-function appendStyledOutput(lines) {
+function appendStyledOutput(lines, clear = false) {
   if (!Array.isArray(lines)) lines = [lines];
 
-  fadeOldResponses();
+  if (clear) {
+    output.innerHTML = "";
+  } else {
+    fadeOldResponses();
+  }
 
   lines.forEach(line => {
     const div = document.createElement("div");
@@ -121,7 +125,7 @@ async function sendAnswer() {
       askInput.focus();
     }
 
-    appendStyledOutput(data.result || "[No output returned]");
+    appendStyledOutput(data.result || "[No output returned]", true);
 
     if (data.memory) memory = data.memory;
 
