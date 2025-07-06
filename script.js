@@ -24,12 +24,33 @@ function highlightOutput() {
   setTimeout(() => output.classList.remove("highlight"), 300);
 }
 
+function appendStyledOutput(lines) {
+  if (!Array.isArray(lines)) lines = [lines];
+
+  const prevLines = output.querySelectorAll("div.response-line");
+  prevLines.forEach(line => {
+    line.style.color = "#0077cc";
+    line.style.fontWeight = "normal";
+    line.style.fontSize = "0.85em";
+  });
+
+  lines.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "response-line";
+    div.style.color = "#c42d88";
+    div.style.fontWeight = "bold";
+    div.style.marginTop = "1em";
+    div.textContent = line;
+    output.appendChild(div);
+  });
+}
+
 async function sendCode() {
   code = textarea.value.trim();
   memory = {};
   answers = [];
   askVar = null;
-  output.textContent = "";
+  output.innerHTML = "";
   askField.style.display = "none";
 
   try {
@@ -50,18 +71,13 @@ async function sendCode() {
       askInput.focus();
     }
 
-    if (Array.isArray(data.result) && data.result.length > 0) {
-      if (output.textContent.trim() !== "") {
-        output.textContent += "\n\n";  // Separation
-      }
-      output.textContent += data.result.join("\n");
-    }
+    appendStyledOutput(data.result || "[No output returned]");
 
     if (data.memory) memory = data.memory;
 
     highlightOutput();
   } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
+    appendStyledOutput(`[ERROR] ${err.message}`);
   }
 
   scrollOutputToBottom();
@@ -72,7 +88,7 @@ async function sendAnswer() {
   const ans = askInput.value;
   if (!askVar) return;
 
-  answers.push(ans);  // Save the answer for resending
+  answers.push(ans);
 
   try {
     const res = await fetch("https://jargon-engine-test.onrender.com/run", {
@@ -92,18 +108,13 @@ async function sendAnswer() {
       askInput.focus();
     }
 
-    if (Array.isArray(data.result) && data.result.length > 0) {
-      if (output.textContent.trim() !== "") {
-        output.textContent += "\n\n";  // Separation
-      }
-      output.textContent += data.result.join("\n");
-    }
+    appendStyledOutput(data.result || "[No output returned]");
 
     if (data.memory) memory = data.memory;
 
     highlightOutput();
   } catch (err) {
-    output.textContent += `\n[ERROR] ${err.message}`;
+    appendStyledOutput(`[ERROR] ${err.message}`);
   }
 
   scrollOutputToBottom();
@@ -134,7 +145,7 @@ function flash(el, msg) {
 
 function resetAll() {
   textarea.value = "";
-  output.textContent = "";
+  output.innerHTML = "";
   memory = {};
   askVar = null;
   askInput.value = "";
